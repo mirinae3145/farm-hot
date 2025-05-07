@@ -1,4 +1,1 @@
-# ice3037
-성균관대학교 종합설계프로젝트(ICE3037, 원상민 교수님)
-
-## Frontend 코드
+# Project &#8594; Frontend
