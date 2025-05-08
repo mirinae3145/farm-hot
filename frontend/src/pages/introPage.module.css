@@ -1,0 +1,84 @@
+.image1Icon {
+    width: 110px;
+    position: relative;
+    max-height: 100%;
+    object-fit: cover;
+}
+.div1 {
+    position: relative;
+    font-weight: 800;
+}
+.image1Parent {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 30px;
+}
+.div2 {
+    position: relative;
+    border: none;        /* 기본 테두리 제거 */
+    outline: none;
+    height: 100%;
+    width: 100%;
+}
+.wrapper {
+    align-self: stretch;
+    border-radius: 7px;
+    background-color: #fefefe;
+    height: 42px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 5px 7px;
+    box-sizing: border-box;
+}
+.container {
+    align-self: stretch;
+    border-radius: 7px;
+    background-color: #8af13b;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 15px;
+    color: #396518;
+}
+.frameParent {
+    align-self: stretch;
+    border-radius: 10px;
+    background-color: #efefef;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 15px;
+    gap: 20px;
+    font-size: 14.4px;
+    color: #999797;
+}
+.div {
+    width: 100%;
+    position: relative;
+    background-color: #fff;
+    height: 568px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 10px;
+    box-sizing: border-box;
+    gap: 10px;
+    text-align: left;
+    font-size: 34.56px;
+    color: #46a653;
+    font-family: Inter;
+}
+
