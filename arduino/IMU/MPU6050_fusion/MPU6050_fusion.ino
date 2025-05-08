@@ -14,15 +14,18 @@ MPU6050 mpu(0x68);
   #define ZA_OFFSET 50
 #endif
 
-// #define OUTPUT_READABLE_YAWPITCHROLL
-#define OUTPUT_READABLE_QUATERNION
-//#define OUTPUT_READABLE_EULER
-//#define OUTPUT_READABLE_REALACCEL
-//#define OUTPUT_READABLE_WORLDACCEL
-// #define OUTPUT_TEAPOT
+// --- 위험 판단 파라미터 ---
+#define M_FRAMES            10     // 평균을 낼 샘플 수
+#define SUSTAIN_SECONDS     5      // 임계치 지속 시간 (초)
+
+#define THETA_THRESHOLD     5.0f   // 회전 각도 임계치 (°)
+#define A_THRESHOLD         0.15f   // 선형 가속도 임계치 (g)
+#define OMEGA_THRESHOLD     5.0f   // 자이로 속도 임계치 (°/s)
+
+#define LOOP_INTERVAL_MS    100     // 루프 주기 (ms)
+
 
 int const INTERRUPT_PIN = 2;  // Define the interruption #0 pin
-bool blinkState;
 
 /*---MPU6050 Control/Status Variables---*/
 bool DMPReady = false;  // Set true if DMP init was successful
@@ -31,18 +34,18 @@ uint8_t devStatus;      // Return status after each device operation (0 = succes
 uint16_t packetSize;    // Expected DMP packet size (default is 42 bytes)
 uint8_t FIFOBuffer[64]; // FIFO storage buffer
 
-/*---Orientation/Motion Variables---*/ 
-Quaternion q;           // [w, x, y, z]         Quaternion container
-VectorInt16 aa;         // [x, y, z]            Accel sensor measurements
-VectorInt16 gy;         // [x, y, z]            Gyro sensor measurements
-VectorInt16 aaReal;     // [x, y, z]            Gravity-free accel sensor measurements
-VectorInt16 aaWorld;    // [x, y, z]            World-frame accel sensor measurements
-VectorFloat gravity;    // [x, y, z]            Gravity vector
-float euler[3];         // [psi, theta, phi]    Euler angle container
-float ypr[3];           // [yaw, pitch, roll]   Yaw/Pitch/Roll container and gravity vector
+// --- 쿼터니언·센서 변수 ---
+Quaternion qCur, qPrev, qRel;
+VectorInt16 aaRaw, aaReal, gyroRaw;
+VectorFloat gravity;
 
-/*-Packet structure for InvenSense teapot demo-*/ 
-uint8_t teapotPacket[14] = { '$', 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0x00, 0x00, '\r', '\n' };
+// --- 이동평균용 원형 버퍼 ---
+float thetaBuf[M_FRAMES] = {0}, aBuf[M_FRAMES] = {0}, omegaBuf[M_FRAMES] = {0};
+int   bufIndex = 0, bufCount = 0;
+float sumTheta = 0, sumA = 0, sumOmega = 0;
+
+// --- 지속시간 측정 ---
+unsigned long motionStartTime = 0;
 
 /*------Interrupt detection routine------*/
 volatile bool MPUInterrupt = false;     // Indicates whether MPU6050 interrupt pin has gone high
@@ -121,8 +124,8 @@ void setup() {
   /* Set the DMP Ready flag so the main loop() function knows it is okay to use it */
   Serial.println(F("DMP ready! Waiting for first interrupt..."));
   DMPReady = true;
-  packetSize = mpu.dmpGetFIFOPacketSize(); //Get expected DMP packet size for later comparison
-  pinMode(LED_BUILTIN, OUTPUT);
+
+  qPrev.w = 1; qPrev.x = qPrev.y = qPrev.z = 0;  // 초기 기준자세
 }
 
 void loop() {
@@ -130,90 +133,83 @@ void loop() {
     
   /* Read a packet from FIFO */
   if (mpu.dmpGetCurrentFIFOPacket(FIFOBuffer)) { // Get the Latest packet 
-    #ifdef OUTPUT_READABLE_YAWPITCHROLL
-      /* Display Euler angles in degrees */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-      Serial.print("ypr\t");
-      Serial.print(ypr[0] * 180/M_PI);
-      Serial.print("\t");
-      Serial.print(ypr[1] * 180/M_PI);
-      Serial.print("\t");
-      Serial.println(ypr[2] * 180/M_PI);
-    #endif
-        
-    #ifdef OUTPUT_READABLE_QUATERNION
+    // #ifdef OUTPUT_READABLE_QUATERNION
       /* Display Quaternion values in easy matrix form: [w, x, y, z] */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
+      mpu.dmpGetQuaternion(&qCur, FIFOBuffer);
       Serial.print("quat\t");
-      Serial.print(q.w);
+      Serial.print(qCur.w);
       Serial.print("\t");
-      Serial.print(q.x);
+      Serial.print(qCur.x);
       Serial.print("\t");
-      Serial.print(q.y);
+      Serial.print(qCur.y);
       Serial.print("\t");
-      Serial.println(q.z);
-    #endif
+      Serial.println(qCur.z);
 
-    #ifdef OUTPUT_READABLE_EULER
-      /* Display Euler angles in degrees */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      mpu.dmpGetEuler(euler, &q);
-      Serial.print("euler\t");
-      Serial.print(euler[0] * 180/M_PI);
-      Serial.print("\t");
-      Serial.print(euler[1] * 180/M_PI);
-      Serial.print("\t");
-      Serial.println(euler[2] * 180/M_PI);
-    #endif
+      mpu.dmpGetAccel(&aaRaw,FIFOBuffer);
+      mpu.dmpGetGravity(&gravity,&qCur);
+      mpu.dmpGetLinearAccel(&aaReal,&aaRaw,&gravity);
 
-    #ifdef OUTPUT_READABLE_REALACCEL
-      /* Display real acceleration, adjusted to remove gravity */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      mpu.dmpGetAccel(&aa, FIFOBuffer);
-      mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-      Serial.print("areal\t");
+      Serial.print("aareal\t");
       Serial.print(aaReal.x);
       Serial.print("\t");
       Serial.print(aaReal.y);
       Serial.print("\t");
       Serial.println(aaReal.z);
-    #endif
 
-    #ifdef OUTPUT_READABLE_WORLDACCEL
-      /* Display initial world-frame acceleration, adjusted to remove gravity
-      and rotated based on known orientation from Quaternion */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      mpu.dmpGetAccel(&aa, FIFOBuffer);
-      mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-      mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
-      Serial.print("aworld\t");
-      Serial.print(aaWorld.x);
-      Serial.print("\t");
-      Serial.print(aaWorld.y);
-      Serial.print("\t");
-      Serial.println(aaWorld.z);
-    #endif
-    
-    #ifdef OUTPUT_TEAPOT
-      /* Display quaternion values in InvenSense Teapot demo format */
-      teapotPacket[2] = FIFOBuffer[0];
-      teapotPacket[3] = FIFOBuffer[1];
-      teapotPacket[4] = FIFOBuffer[4];
-      teapotPacket[5] = FIFOBuffer[5];
-      teapotPacket[6] = FIFOBuffer[8];
-      teapotPacket[7] = FIFOBuffer[9];
-      teapotPacket[8] = FIFOBuffer[12];
-      teapotPacket[9] = FIFOBuffer[13];
-      Serial.write(teapotPacket, 14);
-      teapotPacket[11]++; // PacketCount, loops at 0xFF on purpose
-     #endif
+      mpu.dmpGetGyro(&gyroRaw,FIFOBuffer);
+      qRel.w =  qPrev.w * qCur.w + qPrev.x * qCur.x + qPrev.y * qCur.y + qPrev.z * qCur.z;
+      float thetaRel = 2 * acos(constrain(qRel.w, -1.0f, 1.0f)) * 180.0f / PI;
+      Serial.print("qRelW\t");
+      Serial.println(qRel.w);
 
-  /* Blink LED to indicate activity */
-  blinkState = !blinkState;
-  digitalWrite(LED_BUILTIN, blinkState);
+      float ax = aaReal.x / 16384.0f;
+      float ay = aaReal.y / 16384.0f;
+      float az = aaReal.z / 16384.0f;
+      float aMag = sqrt(ax*ax + ay*ay + az*az);
+      Serial.print("aMag\t");
+      Serial.println(aMag);
+
+      float gx = gyroRaw.x / 131.0f;
+      float gy = gyroRaw.y / 131.0f;
+      float gz = gyroRaw.z / 131.0f;
+      float omegaRate = sqrt(gx*gx + gy*gy + gz*gz);
+      Serial.print("wRate\t");
+      Serial.println(omegaRate);
+
+      sumTheta  = sumTheta  - thetaBuf[bufIndex]  + thetaRel;
+      sumA      = sumA      - aBuf[bufIndex]      + aMag;
+      sumOmega  = sumOmega  - omegaBuf[bufIndex]  + omegaRate;
+      thetaBuf[bufIndex] = thetaRel;
+      aBuf[bufIndex]     = aMag;
+      omegaBuf[bufIndex] = omegaRate;
+      if (bufCount < M_FRAMES) bufCount++;
+      bufIndex = (bufIndex + 1) % M_FRAMES;
+
+      float avgTheta = sumTheta / bufCount;
+      float avgA     = sumA     / bufCount;
+      float avgOmega = sumOmega / bufCount;
+
+      Serial.print("avgTheta\t");
+      Serial.println(avgTheta);
+      Serial.print("avgA\t");
+      Serial.println(avgA);
+      Serial.print("avgOmega\t");
+      Serial.println(avgOmega);
+      bool noMotion = (avgTheta < THETA_THRESHOLD) && (avgA < A_THRESHOLD) && (avgOmega < OMEGA_THRESHOLD);
+
+      if (noMotion) {
+        Serial.println("no motion detected");
+        if (motionStartTime == 0) motionStartTime = millis();
+        if (millis() - motionStartTime >= SUSTAIN_SECONDS * 1000UL) {
+          Serial.println("Emergency");
+        }
+      } else {
+        motionStartTime = 0;
+      }
+    // #endif
+
+    qPrev=qCur;
+    delay(LOOP_INTERVAL_MS);
   }
+
 }
