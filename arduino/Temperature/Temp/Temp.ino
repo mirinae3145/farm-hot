@@ -16,19 +16,19 @@ void setup() {
 
 int updateTemperatureState(float bodyTemp) {
   switch (currentState) {
-    case 0:
+    case 0: // 정상 상태
       if (bodyTemp >= 37.5) {
         currentState = 1;
       }
       break;
-    case 1:
+    case 1: // 발열 상태 돌입
       if (bodyTemp >= 37.0) {
         currentState = 2;
       } else if (bodyTemp < 37.0) {
         currentState = 0;
       }
       break;
-    case 2:
+    case 2: // 발열 상태 유지
       if (bodyTemp < 37.0) {
         currentState = 0;
       }
