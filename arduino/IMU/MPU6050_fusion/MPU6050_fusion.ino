@@ -17,7 +17,10 @@ void setup() {
     while(!Serial);
 
     IMU_Config cfg = {M_FRAMES, A_THRESHOLD, OMEGA_THRESHOLD};
-    IMU_begin(cfg);
+    if(!IMU_begin(cfg)) {
+        Serial.println("IMU failed");
+        while(true);
+    }
 }
 
 void loop() {
