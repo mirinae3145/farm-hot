@@ -11,9 +11,9 @@ IMU_UpdateResult r;
 
 void setup() {
     Wire.begin();
-    Wire.setClock(400000); 
+    Wire.setClock(400000);
   
-    Serial.begin(115200);
+    Serial.begin(38400);
     while(!Serial);
 
     IMU_Config cfg = {M_FRAMES, A_THRESHOLD, OMEGA_THRESHOLD};

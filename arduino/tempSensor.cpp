@@ -1,4 +1,4 @@
-#include "TemperatureSensor.h"
+#include "tempSensor.h"
 #include <Wire.h>
 
 TemperatureSensor::TemperatureSensor()
@@ -42,7 +42,7 @@ bool TemperatureSensor::isTempOkay() const {
 
 float TemperatureSensor::getAverageTemp() const {
   float sum = 0.0f;
-  for (int i = 0; i < tempCount; ++i) {
+  for (int i = 0; i < tempCount; i++) {
     sum += tempHistory[i];
   }
   return sum / tempCount;
