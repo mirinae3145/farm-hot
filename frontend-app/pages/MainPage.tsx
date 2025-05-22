@@ -53,7 +53,7 @@ export default function MainPage() {
                   return Linking.openURL(`tel:${EMERGENCY_PHONE}`);
                 }
               })
-              .catch((err: Error) => console.error('전화 연결 에러:', err));
+              .catch((err: Error) => Alert.alert('전화 연결 에러:' + err.name, err.message));
           }
         },
         {
@@ -103,15 +103,21 @@ export default function MainPage() {
         setBleState("로딩 중");
         manager.startDeviceScan([SERVICE_UUID], {}, (error, device) => {
           if (error) {
-            Alert.alert('블루투스 연결 에러 ' + error.errorCode, error.message);
+            Alert.alert('블루투스 연결 에러 1 ' + error.errorCode, error.message);
             return;
           }
           manager.stopDeviceScan();
           setBleState("켜짐");
           device?.connect()
             .then(d => d.discoverAllServicesAndCharacteristics())
+            .catch(
+              (error: Error) => {
+                Alert.alert("블루투스 연결 에러 2 " + error.name, error.message)
+                return null;
+              }
+            )
             .then(d =>
-              d.monitorCharacteristicForService(
+              d?.monitorCharacteristicForService(
                 SERVICE_UUID,
                 CHAR_UUID,
                 (error, c) => {
@@ -137,6 +143,10 @@ export default function MainPage() {
                   }
                 }
               )
+            ).catch(
+              (error: Error) => {
+                Alert.alert("블루투스 수신 에러 " + error.name, error.message)
+              }
             );
         });
       }
