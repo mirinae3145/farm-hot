@@ -14,17 +14,17 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 # GPIO 핀 설정 (밸브 제어용) TODO: 실제 사용할 때는 조절
 # 지역 ID에 따른 GPIO 핀 매핑
 VALVE_PINS = {
-    1: 17,
-    2: 18,
-    3: 27,
-    4: 22
+    1: 6,
+    2: 13,
+    3: 19,
+    4: 26
 }
 
 # GPIO 초기화
 GPIO.setmode(GPIO.BCM)
 for pin in VALVE_PINS.values():
     GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, GPIO.LOW)  # 기본값: 밸브 닫힘
+    GPIO.output(pin, GPIO.HIGH)  # 기본값: 밸브 닫힘
 
 
 # 밸브 제어 함수
@@ -35,10 +35,10 @@ def control_valve(region_id, is_active):
         
         if is_active:
             print(f"Opening valve for region ID {region_id}")
-            GPIO.output(pin, GPIO.HIGH)  # 밸브 열기
+            GPIO.output(pin, GPIO.LOW)  # 밸브 열기
         else:
             print(f"Closing valve for region ID {region_id}")
-            GPIO.output(pin, GPIO.LOW)   # 밸브 닫기
+            GPIO.output(pin, GPIO.HIGH)   # 밸브 닫기
     else:
         print(f"Unknown region ID: {region_id}")
 
