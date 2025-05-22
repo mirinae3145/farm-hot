@@ -8,8 +8,8 @@ import RPi.GPIO as GPIO
 import os
 
 # Supabase 설정
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_URL = "https://goragpnuhxbvcwionsat.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvcmFncG51aHhidmN3aW9uc2F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NTk1NjUsImV4cCI6MjA2MDQzNTU2NX0.5xUcOf8Qinc8ddPG5qYFo7nK375YQQx--NZM1E8G3ww"
 
 # GPIO 핀 설정 (밸브 제어용) TODO: 실제 사용할 때는 조절
 # 지역 ID에 따른 GPIO 핀 매핑
