@@ -6,7 +6,7 @@ import logo from "../assets/Logo.png";
 
 
 export default function IntroPage() {
-  const { user, startUser } = useUserStore();
+  const { loading, user, startUser } = useUserStore();
   const navigate = useNavigation();
 
   const [name, setName] = useState('');
@@ -40,7 +40,7 @@ export default function IntroPage() {
           <TextInput style={[styles.text1, styles.textTypo]} placeholder="사용자 아이디(이름)" value={name} onChangeText={onChange} />
         </View>
         <TouchableOpacity style={[styles.container, styles.wrapperFlexBox]} onPress={onClick}>
-          <Text style={[styles.text2, styles.textTypo]}>회원가입 혹은 로그인</Text>
+          <Text style={[styles.text2, styles.textTypo]}>{loading ? '로딩 중...' : '회원가입 혹은 로그인'}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>);
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: "#8af13b",
-    paddingHorizontal: 115,
+    paddingHorizontal: 10,
     paddingVertical: 9,
     justifyContent: "center"
   },

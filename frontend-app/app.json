@@ -28,6 +28,7 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "앱에서 위치 정보를 사용하여 현재 위치를 확인합니다.",
         "NSBluetoothAlwaysUsageDescription": "앱에서 블루투스를 사용하여 기기와 통신합니다.",
+        "NSBluetoothPeripheralUsageDescription": "앱에서 블루투스를 사용하여 기기와 통신합니다.",
         "LSApplicationQueriesSchemes": [
           "tel",
           "tel"

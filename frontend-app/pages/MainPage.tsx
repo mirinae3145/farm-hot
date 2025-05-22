@@ -7,15 +7,20 @@ import * as Location from 'expo-location';
 import * as Linking from 'expo-linking';
 import { BleManager } from 'react-native-ble-plx';
 import { CHAR_UUID, EMERGENCY_PHONE, SERVICE_UUID } from '../config';
-import { Alert } from 'react-native';
+import { Alert, TouchableOpacity } from 'react-native';
 import { Image, StyleSheet, Text, View, SafeAreaView } from "react-native";
 import logo from '../assets/Logo.png';
 
+type BLE_STATE = "로딩 중" | "켜짐" | "꺼짐";
+
 export default function MainPage() {
   const { user } = useUserStore();
+  const [ bleState, setBleState ] = useState<BLE_STATE>("꺼짐");
   const [isTempSafe, setIsTempSafe] = useState<boolean>(true);
   const [isHeartRateSafe, setIsHeartRateSafe] = useState<boolean>(true);
   const [isFallSafe, setIsFallSafe] = useState<boolean>(true);
+
+  const [ recentBuffer, setRecentBuffer ] = useState<Uint8Array | null>(null);
 
   const navigate = useNavigation();
 
@@ -95,28 +100,37 @@ export default function MainPage() {
 
     subState = manager.onStateChange(state => {
       if (state === 'PoweredOn') {
-        manager.startDeviceScan([SERVICE_UUID], {}, (_, device) => {
+        setBleState("로딩 중");
+        manager.startDeviceScan([SERVICE_UUID], {}, (error, device) => {
+          if (error) {
+            Alert.alert('블루투스 연결 에러 ' + error.errorCode, error.message);
+            return;
+          }
           manager.stopDeviceScan();
+          setBleState("켜짐");
           device?.connect()
             .then(d => d.discoverAllServicesAndCharacteristics())
             .then(d =>
               d.monitorCharacteristicForService(
                 SERVICE_UUID,
                 CHAR_UUID,
-                (_, c) => {
+                (error, c) => {
+                  if (error) {
+                    Alert.alert('블루투스 연결 에러 ' + error.errorCode, error.message);
+                    return;
+                  }
                   if (!c) return;
                   if (!c.value) return;
                   const buffer = Buffer.from(c.value, 'base64');
                   const bytes = new Uint8Array(buffer);
+                  setRecentBuffer(bytes);
 
                   // 2) 프레임 헤더/테일 검사
                   if (
-                    bytes.length === 5 &&           // 최소 길이(헤더+3바이트+테일)
-                    bytes[0] === 0xAA &&           // 시작 바이트
-                    bytes[bytes.length - 1] === 0x55 // 끝 바이트
+                    bytes.length === 3           // 최소 길이(헤더+3바이트+테일)
                   ) {
                     // 3) 실제 데이터(3바이트) 추출
-                    const payload = bytes.slice(1, 4); // Uint8Array [b0, b1, b2]
+                    const payload = bytes; // Uint8Array [b0, b1, b2]
                     setIsTempSafe(payload[0] === 1);
                     setIsHeartRateSafe(payload[1] === 1);
                     setIsFallSafe(payload[2] === 1);
@@ -132,6 +146,7 @@ export default function MainPage() {
       subState.remove();
       manager.stopDeviceScan();
       manager.destroy();
+      setBleState("꺼짐");
     };
 
   }, []);
@@ -140,9 +155,10 @@ export default function MainPage() {
     <SafeAreaView style={[styles.safeareaview, styles.parentFlexBox]}>
       <View style={styles.image1Parent}>
         <Image style={styles.image1Icon} resizeMode="cover" source={logo} />
-        <Text style={styles.text}>팜덥니?</Text>
+        <Text style={styles.text}>{bleState}</Text>
       </View>
       {isTempSafe && isHeartRateSafe && isFallSafe ? <SafeLayout /> : <UnsafeLayout />}
+      {recentBuffer && <Text>{recentBuffer}</Text>}
     </SafeAreaView>);
 };
 
