@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "팜덥니?",
+    "slug": "farm-hot",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/Logo.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/Logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      [
+        "react-native-ble-plx",
+        {
+          "BluetoothScanPermission": "Allow BLE scanning to communicate with peripherals",
+          "BluetoothConnectPermission": "Allow BLE connections",
+          "BluetoothAdvertisePermission": "Allow BLE advertising if needed",
+          "LocationWhenInUse": "Required for BLE scanning on Android 12+"
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "앱에서 위치 정보를 사용하여 현재 위치를 확인합니다.",
+        "NSBluetoothAlwaysUsageDescription": "앱에서 블루투스를 사용하여 기기와 통신합니다.",
+        "LSApplicationQueriesSchemes": [
+          "tel",
+          "tel"
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.junebridge0903.farmhot"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/Logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_CONNECT",
+        "CALL_PHONE",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ],
+      "package": "com.junebridge0903.farmhot"
+    },
+    "web": {
+      "favicon": "./assets/Logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f49d4f44-2ad1-4986-beb1-3b9f4f7950df"
+      }
+    }
+  }
+}

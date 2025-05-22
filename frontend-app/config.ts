@@ -1,0 +1,10 @@
+
+// config.ts 공개 ㅈ까 날 말릴 수는 없어
+
+export const SERVICE_UUID = '7987D1FC-3DB6-4CFE-980F-AA458860918E'
+export const CHAR_UUID = '7987D1FC-3DB6-4CFE-980F-AA458860918E'
+
+export const REACT_APP_SUPABASE_URL = 'https://goragpnuhxbvcwionsat.supabase.co'
+export const REACT_APP_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvcmFncG51aHhidmN3aW9uc2F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NTk1NjUsImV4cCI6MjA2MDQzNTU2NX0.5xUcOf8Qinc8ddPG5qYFo7nK375YQQx--NZM1E8G3ww'
+
+export const EMERGENCY_PHONE = '010-1234-5678';
