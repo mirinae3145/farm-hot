@@ -1,16 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUserStore } from '../hooks/userStore';
 import { useNavigation } from '@react-navigation/native';
-import {Image, StyleSheet, Text, View, TextInput, TouchableOpacity} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
+import {Image, StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, Alert} from "react-native";
 import logo from "../assets/Logo.png";
 
 
 export default function IntroPage() {
-  const { startUser } = useUserStore();
+  const { user, startUser } = useUserStore();
   const navigate = useNavigation();
 
   const [name, setName] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      navigate.navigate('MainPage' as never);
+    }
+  }, [user]);
 
   const onChange = (e: string) => {
     setName(e);
@@ -18,11 +23,10 @@ export default function IntroPage() {
 
   const onClick = async () => {
     if (!name) {
-      alert('이름을 입력해주세요.');
+      Alert.alert('이름을 입력해주세요.');
       return;
     }
     await startUser(name);
-    navigate.navigate('MainPage' as never);
   };
 
   return (

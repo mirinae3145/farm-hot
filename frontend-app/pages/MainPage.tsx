@@ -8,8 +8,7 @@ import * as Linking from 'expo-linking';
 import { BleManager } from 'react-native-ble-plx';
 import { CHAR_UUID, EMERGENCY_PHONE, SERVICE_UUID } from '../config';
 import { Alert } from 'react-native';
-import { Image, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Image, StyleSheet, Text, View, SafeAreaView } from "react-native";
 import logo from '../assets/Logo.png';
 
 export default function MainPage() {
