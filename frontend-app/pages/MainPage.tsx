@@ -10,6 +10,7 @@ import { CHAR_UUID, EMERGENCY_PHONE, SERVICE_UUID } from '../config';
 import { Alert, TouchableOpacity } from 'react-native';
 import { Image, StyleSheet, Text, View, SafeAreaView } from "react-native";
 import logo from '../assets/Logo.png';
+import { decode as atob } from 'base-64';
 
 type BLE_STATE = "로딩 중" | "켜짐" | "꺼짐";
 
@@ -108,7 +109,11 @@ export default function MainPage() {
           }
           manager.stopDeviceScan();
           setBleState("켜짐");
-          device?.connect()
+          if (!device) {
+            setBleState("꺼짐");
+            return;
+          }
+          device.connect()
             .then(d => d.discoverAllServicesAndCharacteristics())
             .catch(
               (error: Error) => {
@@ -116,8 +121,9 @@ export default function MainPage() {
                 return null;
               }
             )
-            .then(d =>
-              d?.monitorCharacteristicForService(
+            .then(d => {
+              if (!d) return;
+              d.monitorCharacteristicForService(
                 SERVICE_UUID,
                 CHAR_UUID,
                 (error, c) => {
@@ -127,8 +133,8 @@ export default function MainPage() {
                   }
                   if (!c) return;
                   if (!c.value) return;
-                  const buffer = Buffer.from(c.value, 'base64');
-                  const bytes = new Uint8Array(buffer);
+                  const binary = atob(c.value);
+                  const bytes = Uint8Array.from(binary, (char: string) => char.charCodeAt(0));
                   setRecentBuffer(bytes);
 
                   // 2) 프레임 헤더/테일 검사
@@ -143,6 +149,7 @@ export default function MainPage() {
                   }
                 }
               )
+            }
             ).catch(
               (error: Error) => {
                 Alert.alert("블루투스 수신 에러 " + error.name, error.message)
@@ -168,7 +175,7 @@ export default function MainPage() {
         <Text style={styles.text}>{bleState}</Text>
       </View>
       {isTempSafe && isHeartRateSafe && isFallSafe ? <SafeLayout /> : <UnsafeLayout />}
-      {recentBuffer && <Text>{recentBuffer}</Text>}
+      {recentBuffer && <Text>{recentBuffer.join(', ')}</Text>}
     </SafeAreaView>);
 };
 
