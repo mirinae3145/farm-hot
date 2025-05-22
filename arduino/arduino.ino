@@ -11,8 +11,13 @@ TemperatureSensor tempSensor;
 #define TX_PIN 3
 #define RATE 9600
 
+#if defined(ESP32)
+#include <HardwareSerial.h>
+HardwareSerial BTSerial(1);
+#else
 #include <SoftwareSerial.h>
 SoftwareSerial BTSerial(RX_PIN,TX_PIN);
+#endif
 
 
 float aBuf[M_FRAMES] = {0}, omegaBuf[M_FRAMES] = {0};
@@ -27,8 +32,11 @@ long last=0;
 int iter=0;
 
 void setup() {
-
+#if defined(ESP32)
+BTSerial.begin(RATE,SERIAL_8N1,RX_PIN,TX_PIN);
+#else
 BTSerial.begin(RATE);
+#endif
 Serial.begin(38400);
 while(!Serial);
 Serial.println("serial success");
