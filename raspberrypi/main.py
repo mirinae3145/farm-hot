@@ -52,6 +52,9 @@ def handle_region_change(payload):
         region_data = payload['data']['record']
         region_id = region_data.get('id')
         is_active = not region_data.get('is_safe', True)
+
+        if region_id in [1, 2]:
+            return
         
         # 해당 지역의 밸브 제어
         control_valve(region_id, is_active)
@@ -136,9 +139,12 @@ if __name__ == "__main__":
         listener_thread.start()
         print("Listener thread started")
         
-        # 메인 스레드에서 프로그램 유지
+        # 메인 스레드에서 프로그램 유지 & 1과 2 왔다갔다 2초
+        now_region = 1
         while True:
-            time.sleep(1)
+            control_valve(now_region, True)
+            control_valve(3 - now_region, False)
+            time.sleep(20)
             
     except KeyboardInterrupt:
         print("Exiting program")
