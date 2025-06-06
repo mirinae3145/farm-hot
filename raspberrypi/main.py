@@ -145,6 +145,7 @@ if __name__ == "__main__":
             control_valve(now_region, True)
             control_valve(3 - now_region, False)
             time.sleep(20)
+            now_region = 3 - now_region
             
     except KeyboardInterrupt:
         print("Exiting program")
