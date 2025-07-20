@@ -1,8 +1,9 @@
+#include <Arduino.h>
+
 #include <MAX30105.h>
+#include <heartRate.h>
 
 #include "HeartSensor.h"
-#include "heartRate.h"
-#include <Arduino.h>
 
 bool HeartSensor::begin() {
     if (!sensor.begin(Wire, I2C_SPEED_FAST)) return false;
@@ -40,6 +41,6 @@ bool HeartSensor::isDanger(unsigned long alertDuration) {
 }
 
 void HeartSensor::print() {
-    Serial.print("[심박] BPM: ");
+    Serial.print("BPM: ");
     Serial.println(bpm);
 }

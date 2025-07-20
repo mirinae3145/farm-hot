@@ -1,5 +1,5 @@
 #pragma once
-#include "MPU6050_6Axis_MotionApps20.h"
+#include <MPU6050_6Axis_MotionApps20.h>
 
 struct IMU_Config {
     int frames;

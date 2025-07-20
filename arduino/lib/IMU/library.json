@@ -1,0 +1,25 @@
+{
+    "name": "IMU",
+    "version": "1.0.0",
+    "description": "Wrapper for MPU6050 inertial sensor",
+    "keywords": [
+        "IMU",
+        "MPU6050"
+    ],
+    "authors": [
+        {
+            "name": "Shin Taeha",
+            "maintainer": true
+        }
+    ],
+    "platforms": [
+        "espressif32",
+        "atmelavr"
+    ],
+    "dependencies": [
+        {
+            "name": "MPU6050",
+            "version": "^1.4.3"
+        }
+    ]
+}

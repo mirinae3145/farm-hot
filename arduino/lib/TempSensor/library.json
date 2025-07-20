@@ -1,0 +1,29 @@
+{
+    "name": "TempSensor",
+    "version": "1.0.0",
+    "description": "Wrapper for MLX90614 temperature sensor",
+    "keywords": [
+        "temperature",
+        "MLX90614"
+    ],
+    "authors": [
+        {
+            "name": "Kim Chan",
+            "maintainer": false
+        },
+        {
+            "name": "Shin Taeha",
+            "maintainer": true
+        }
+    ],
+    "platforms": [
+        "espressif32",
+        "atmelavr"
+    ],
+    "dependencies": [
+        {
+            "name": "Adafruit MLX90614 Library",
+            "version": "^2.1.5"
+        }
+    ]
+}

@@ -10,15 +10,19 @@ Maintainer: 신태하
 - [x] 물리량 간 환산하기
 - [x] 현실단위 맞추기
 - [x] 판단기준 수립하기
+- [x] 마무리
 ## Heartbeat
 Maintainer: 김태형
-- [ ] raw 데이터 읽기
-- [ ] 플로터로 확인하기
+- [x] raw 데이터 읽기
+- [x] 플로터로 확인하기
+- [x] 마무리
 ## Temperature
 Maintainer: 김찬
-- [ ] raw 데이터 읽기
-- [ ] 방사율 캘리브레이션 진행하기
+- [x] raw 데이터 읽기
+- [x] 방사율 캘리브레이션 진행하기
+- [x] 마무리
 ## Bluetooth
 Maintainer: 신태하
 - [x] 기본 세팅
 - [x] 구현
+- [x] 마무리

@@ -1,0 +1,23 @@
+{
+    "name": "BT",
+    "version": "1.0.0",
+    "description": "Bluetooth library for connecting with mobile app",
+    "keywords": [
+        "bluetooth",
+        "FarmDevice"
+    ],
+    "authors": [
+        {
+            "name": "Kim Jungyo",
+            "maintainer": false
+        },
+        {
+            "name": "Shin Taeha",
+            "maintainer": true
+        }
+    ],
+    "platforms": [
+        "espressif32",
+        "atmelavr"
+    ]
+}
